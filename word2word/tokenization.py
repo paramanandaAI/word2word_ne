@@ -7,6 +7,44 @@ import operator
 import re
 from tqdm import tqdm
 
+def clean_devnagari(token):
+        # Step 1: Remove non-Devanagari characters
+        cleaned_token = re.sub(r'[^\s\u0900-\u097F]', ' ', token)  # Keep only Nepali characters and spaces
+        
+        # Step 2: Remove unwanted sequences like '/ /', '/ //', 'Purnabiram', etc.
+        cleaned_token = re.sub(r'\/\s*\/+', '', cleaned_token)  # Remove sequences like / /, / //, etc.
+        cleaned_token = re.sub(r'।', ' ', cleaned_token)  # Remove '।' by replacing with a space
+
+        # Step 3: Remove Nepali digits
+        cleaned_token = re.sub(r'[\u0966-\u096F]', '', cleaned_token)  # Remove Nepali digits
+
+        cleaned_token = re.sub(r'\s+', ' ', cleaned_token)  # Replace multiple spaces with a single space
+        cleaned_token = cleaned_token.strip()  # Clean up leading/trailing spaces
+
+        return cleaned_token
+
+def normal_devnagari(token):
+        # Step 1: Remove non-Devanagari characters
+        cleaned_token = re.sub(r'[^\s\u0900-\u097F]', ' ', token)  # Keep only Nepali characters and spaces
+        
+        # Step 2: Remove unwanted sequences like '/ /', '/ //', 'Purnabiram', etc.
+        cleaned_token = re.sub(r'\/\s*\/+', '', cleaned_token)  # Remove sequences like / /, / //, etc.
+        cleaned_token = re.sub(r'।', ' ', cleaned_token)  # Remove '।' by replacing with a space
+
+        cleaned_token = re.sub(r'\s+', ' ', cleaned_token)  # Replace multiple spaces with a single space
+        cleaned_token = cleaned_token.strip()  # Clean up leading/trailing spaces
+
+        return cleaned_token
+
+def clean_eng(text):
+    # Remove all non-English words and digits
+    cleaned_text = re.sub(r'[^a-zA-Z\s]', '', text)
+    # Convert to lowercase
+    cleaned_text = cleaned_text.lower()
+    # Remove extra spaces
+    cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
+    return cleaned_text
+
 
 def load_tokenizer(lang):
     if lang == "ko":
@@ -42,7 +80,7 @@ def load_tokenizer(lang):
     return tokenizer
 
 
-def word_segment(sent, lang, tokenizer):
+def word_segment(sent, lang, tokenizer,to_clean=False):
     if lang == 'ko':
         words = [word for word, _ in tokenizer.pos(sent)]
     elif lang == 'ja':
@@ -57,37 +95,49 @@ def word_segment(sent, lang, tokenizer):
         words = list(tokenizer.cut(sent, cut_all=False))
     elif lang == "ar":
         words = tokenizer.tokenize(sent)
+    elif lang == "hi":
+        sent = normal_devnagari(sent)
+        if to_clean:
+            sent = clean_devnagari(sent)
+        words = tokenizer.tokenize(sent)
+    elif lang == "ne":
+        sent = normal_devnagari(sent)
+        if to_clean:
+            sent = clean_devnagari(sent)
+        words = tokenizer.tokenize(sent)
     # elif lang=="en":
     #     words = tokenizer(sent)
     else:  # Most european languages
         sent = re.sub("([A-Za-z])(\.[ .])", r"\1 \2", sent)
+        if to_clean:
+            sent = clean_eng(sent)
         words = tokenizer.tokenize(sent)
 
     return words
 
 
-def process_line(line, lang, tokenizer, cased):
+def process_line(line, lang, tokenizer, cased, to_clean):
     """Strip, uncase (optionally), and tokenize line.
 
     multiprocessing helper for get_sents()."""
     line = line.strip() if cased else line.strip().lower()
-    return word_segment(line, lang, tokenizer)
+    return word_segment(line, lang, tokenizer,to_clean)
 
 
-def get_sents(fin, lang, tokenizer, cased, n_lines, num_workers=8):
+def get_sents(fin, lang, tokenizer, cased, n_lines, num_workers=8, to_clean=False):
     """Load parallel corpus and segment words using multiprocessing."""
 
     with open(fin, encoding='utf-8') as f:
         lines = islice(f, n_lines)
         if num_workers <= 1:
-            return [process_line(line, lang, tokenizer, cased)
+            return [process_line(line, lang, tokenizer, cased, to_clean)
                     for line in lines]
         else:
             print(f"Entering multiprocessing with {num_workers} workers...")
             with Pool(num_workers) as p:
                 return p.starmap(
                     process_line,
-                    zip(lines, repeat(lang), repeat(tokenizer), repeat(cased))
+                    zip(lines, repeat(lang), repeat(tokenizer), repeat(cased),repeat(to_clean))
                 )
 
 

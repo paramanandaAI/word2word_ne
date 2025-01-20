@@ -56,6 +56,9 @@ def main():
                              "a custom-bulit lexicon.")
     parser.add_argument('--num_workers', default=16, type=int,
                         help="number of workers used for multiprocessing")
+    parser.add_argument('--to_clean', type=bool, default=False, required=True,
+                        help="to disable lowercasing and removing numbers and punctuations from english")
+                             
     args = parser.parse_args()
 
     Word2word.make(**vars(args))

@@ -8,6 +8,7 @@ REQUIRED_PACKAGES = [
     'wget',
     'numpy',
     'tqdm',
+    'nltk'
 ]
 
 setuptools.setup(

@@ -1,9 +1,36 @@
+# Changes
+
+Use notebook provided to help and work with hindi and nepali wordnet extenstion(**yet to be published**)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# word2word
+
+
 [![image](https://img.shields.io/pypi/v/word2word.svg)](https://pypi.org/project/word2word/)
 [![image](https://img.shields.io/pypi/l/word2word.svg)](https://pypi.org/project/word2word/)
 [![image](https://img.shields.io/pypi/pyversions/word2word.svg)](https://pypi.org/project/word2word/)
 [![image](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/kimdwkimdw)
 
-# word2word
 
 Easy-to-use word translations for 3,564 language pairs.
 

@@ -2,3 +2,4 @@ requests
 wget
 numpy
 tqdm
+nltk

@@ -99,6 +99,7 @@ class Word2word:
             save_pmi: bool = False,
             savedir: str = None,
             num_workers: int = 16,
+            to_clean: str = False
     ):
         """Build a bilingual lexicon using a parallel corpus."""
 
@@ -122,10 +123,10 @@ class Word2word:
         t0 = time()
         print("Step 2. Constructing sentences")
         sents1 = get_sents(
-            lang1_file, lang1, tokenizer1, cased, n_lines, num_workers
+            lang1_file, lang1, tokenizer1, cased, n_lines, num_workers, to_clean
         )
         sents2 = get_sents(
-            lang2_file, lang2, tokenizer2, cased, n_lines, num_workers
+            lang2_file, lang2, tokenizer2, cased, n_lines, num_workers, to_clean
         )
         print(f"Time taken for step 2: {time() - t0:.2f}s")
 
