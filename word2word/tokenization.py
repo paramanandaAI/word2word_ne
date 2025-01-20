@@ -6,6 +6,38 @@ from multiprocessing import Pool
 import operator
 import re
 from tqdm import tqdm
+# import morfessor
+
+# io = morfessor.MorfessorIO()
+# modelne = io.read_binary_model_file('/Users/fulbutte/Documents/github/word2word_ne/morfessor/newworst.bin')
+# modelhi = io.read_any_model("morfessor/indicnlp.v1.hi.model")
+# def morphological_parser(sentence, model):
+#     """
+#     Given a sentence, this function performs morphological segmentation
+#     word by word and returns the segmented sentence or a fallback in case of an error.
+#     """
+#     try:
+#         # Split the sentence into words
+#         words = sentence.split()
+        
+#         # Perform morphological segmentation for each word
+#         segmented_words = []
+#         for word in words:
+#             segmentation, cost = model.viterbi_segment(word)
+#             segmented_words.append(' '.join(segmentation))
+#             print(segmentation)
+#         # Combine the segmented words into a sentence
+#         return ' '.join(segmented_words)
+#     except Exception as e:
+#         # Handle error gracefully and provide a fallback
+#         print(f"Error processing sentence '{sentence}': {e} - Falling back to original input.")
+#         # Return the original sentence in case of an error
+#         return sentence
+
+
+
+
+
 
 def clean_devnagari(token):
         # Step 1: Remove non-Devanagari characters
@@ -80,7 +112,7 @@ def load_tokenizer(lang):
     return tokenizer
 
 
-def word_segment(sent, lang, tokenizer,to_clean=False):
+def word_segment(sent, lang, tokenizer,to_clean=False,lemma = False):
     if lang == 'ko':
         words = [word for word, _ in tokenizer.pos(sent)]
     elif lang == 'ja':
@@ -97,47 +129,58 @@ def word_segment(sent, lang, tokenizer,to_clean=False):
         words = tokenizer.tokenize(sent)
     elif lang == "hi":
         sent = normal_devnagari(sent)
-        if to_clean:
+        # # if lemma:
+        # if True:
+
+        #     sent = morphological_parser(sent,modelhi)
+        # if to_clean:
+        if True:
             sent = clean_devnagari(sent)
         words = tokenizer.tokenize(sent)
     elif lang == "ne":
         sent = normal_devnagari(sent)
-        if to_clean:
+        # # if lemma:
+        # # if True:
+        #     sent = morphological_parser(sent,modelne)
+        # if to_clean:
+        if True:
             sent = clean_devnagari(sent)
         words = tokenizer.tokenize(sent)
     # elif lang=="en":
     #     words = tokenizer(sent)
     else:  # Most european languages
         sent = re.sub("([A-Za-z])(\.[ .])", r"\1 \2", sent)
-        if to_clean:
+        # if to_clean:
+        if True:
+
             sent = clean_eng(sent)
         words = tokenizer.tokenize(sent)
 
     return words
 
 
-def process_line(line, lang, tokenizer, cased, to_clean):
+def process_line(line, lang, tokenizer, cased, to_clean,lemma=False):
     """Strip, uncase (optionally), and tokenize line.
 
     multiprocessing helper for get_sents()."""
     line = line.strip() if cased else line.strip().lower()
-    return word_segment(line, lang, tokenizer,to_clean)
+    return word_segment(line, lang, tokenizer,to_clean,lemma=False)
 
 
-def get_sents(fin, lang, tokenizer, cased, n_lines, num_workers=8, to_clean=False):
+def get_sents(fin, lang, tokenizer, cased, n_lines, num_workers=8, to_clean=False, lemma = False):
     """Load parallel corpus and segment words using multiprocessing."""
 
     with open(fin, encoding='utf-8') as f:
         lines = islice(f, n_lines)
         if num_workers <= 1:
-            return [process_line(line, lang, tokenizer, cased, to_clean)
+            return [process_line(line, lang, tokenizer, cased, to_clean,lemma)
                     for line in lines]
         else:
             print(f"Entering multiprocessing with {num_workers} workers...")
             with Pool(num_workers) as p:
                 return p.starmap(
                     process_line,
-                    zip(lines, repeat(lang), repeat(tokenizer), repeat(cased),repeat(to_clean))
+                    zip(lines, repeat(lang), repeat(tokenizer), repeat(cased),repeat(to_clean),repeat(lemma))
                 )
 
 

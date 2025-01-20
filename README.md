@@ -2,7 +2,7 @@
 
 Use notebook provided to help and work with hindi and nepali wordnet extenstion(**yet to be published**)
 
-
+- Hindi & Nepali will have all its non devanagari and devanagari numbers removed(use flag --to_clean = true) but overwritten to work by default for hindi and nepali
 
 
 

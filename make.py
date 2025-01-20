@@ -56,8 +56,10 @@ def main():
                              "a custom-bulit lexicon.")
     parser.add_argument('--num_workers', default=16, type=int,
                         help="number of workers used for multiprocessing")
-    parser.add_argument('--to_clean', type=bool, default=False, required=True,
-                        help="to disable lowercasing and removing numbers and punctuations from english")
+    parser.add_argument('--to_clean', type=bool, default=False, 
+                        help="to disable lowercasing and removing numbers and punctuations from english and devnagari")
+    parser.add_argument('--lemma', type=bool, default=False, 
+                        help="to only keep the lemma of the words")
                              
     args = parser.parse_args()
 

@@ -3,3 +3,4 @@ wget
 numpy
 tqdm
 nltk
+morfessor

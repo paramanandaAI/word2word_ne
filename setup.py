@@ -8,7 +8,8 @@ REQUIRED_PACKAGES = [
     'wget',
     'numpy',
     'tqdm',
-    'nltk'
+    'nltk',
+    'morfessor'
 ]
 
 setuptools.setup(
